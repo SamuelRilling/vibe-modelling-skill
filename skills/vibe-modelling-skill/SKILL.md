@@ -131,12 +131,17 @@ Use these unless the context says otherwise. Always report the important ones.
 
 **Process warnings (report, don't block):**
 
-| Process | Min wall | Hole-to-edge |
+| Process | Min wall | Hole-to-edge (from hole center; sheet metal: from hole edge) |
 |---|---|---|
 | Machined metal | 1 mm | ≥ 1 × Ø (bolted: 1.5–2 ×) |
 | FDM print | 1.2 mm | ≥ 1 × Ø |
 | Injection molded | 1–3 mm, uniform | ≥ 1 × Ø; add draft 1–2° |
 | Sheet metal | = gauge | ≥ 2 × thickness; hole Ø ≥ thickness |
+
+**Scripts (if you can run Python 3.10+):** use them instead of mental math; if you can't, do the same math by hand.
+- `scripts/geometry.py boltcircle | edge | wall`: hole overlap and coordinates, edge distance, wall left.
+- `scripts/geometry.py plate | revolve`: bbox and volume for EXPECT (plates with rounded corners and stepped holes; turned parts from the half-profile).
+- `scripts/lint_spec.py <file>`: check the build spec format before handing it over.
 
 ## Design intent
 
@@ -212,7 +217,7 @@ Keep it short. Draft mode: skip the table if fewer than 5 fields, list values in
 
 ## Build spec (after send)
 
-The handoff is a structured feature list, not prose, code or bare coordinates: prose is ambiguous, code ties it to one tool, coordinates alone lose intent. Format:
+The handoff is a structured feature list, not prose, code or bare coordinates: prose is ambiguous, code ties it to one tool, coordinates alone lose intent. Full format reference: `docs/build-spec.md` in the repository. Format:
 
 ```
 PART: motor-plate v1 · aluminum 6061, machined · units mm · file robot-motor-plate-v1
