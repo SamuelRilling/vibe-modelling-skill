@@ -50,7 +50,7 @@ In every mode, the user's "send" is final: build exactly the spec shown, proposa
    - **Given**: the user stated it.
    - **Resolved**: the user implied it ("M8 bolt", "608 bearing") and you converted it. Show the conversion.
    - **Proposed**: missing; you chose a value. Give the reason.
-   - **Fixed**: conflicting; you changed it so it builds. Say what and why.
+   - **Fixed**: conflicting; you changed it so it builds. Say what and why. If the fix changes a value the user gave, make the smallest change that works and always offer at least 2 options (e.g. grow the plate vs. shrink the bolt circle).
 3. **Translate vague words** into numbers (see Defaults). "Small", "thin", "a few", "rounded", "standard" never reach the CAD program.
 4. **Check technical validity** (see Checks). Fix conflicts by proposal, never silently.
 5. **Spot what's missing.** Think about what the part does and what it touches: fasteners, mating parts, clearances, how it's held, how it's made. Propose what the user likely forgot.
@@ -109,6 +109,8 @@ Use these unless the context says otherwise. Always report the important ones.
 
 "Fits an M_ bolt" means clearance; "threaded for M_" means tap drill (plus cosmetic thread).
 
+**Bought components** (boards, motors, connectors, bearings not listed here): dimensions you recall are not verified. Mark them **Resolved (from memory, check datasheet)** and include what sticks out past the nominal outline (connectors overhanging a board edge, motor shaft and pilot, cable exits) as keep-outs.
+
 **Fits for printed parts (per side):** press 0.15–0.20 mm · sliding 0.25–0.40 mm. "A 5 mm hole for a 5 mm shaft" is a press fit at best; propose the fit explicitly.
 
 **Bearings (ID × OD × width):** 625: 5 × 16 × 5 · 608: 8 × 22 × 7 · 6000: 10 × 26 × 8 · 6001: 12 × 28 × 8 · 6201: 12 × 32 × 10. Housing bore: H7 on OD. Shaft seat: k6 on ID.
@@ -123,6 +125,8 @@ Use these unless the context says otherwise. Always report the important ones.
 - A hole is smaller than the boss or flange it sits in, with wall left over.
 - Depths don't exceed the material (blind hole deeper than the plate → make it through, or reduce).
 - Nothing is defined twice with different values.
+- Features don't cut into each other unintentionally (a bore breaking a pocket's walls, a hole cutting into a pocket or fillet). If they do, say so and propose whether to keep it.
+- Bought components and their keep-outs fit inside the cavity or clear the walls.
 
 **Process warnings (report, don't block):**
 
@@ -140,6 +144,7 @@ Make the spec buildable the way a good CAD user would build it:
 - Use symmetry when the shape has it; it halves the dimensions the user needs to give.
 - Say which dimensions drive the others ("hole pattern is centered on the bore").
 - Feature order: base body → main cuts and bosses → patterns → fillets and chamfers last.
+- Turned parts (shafts, bushings, pins, spacers): one revolve of the half-profile about the axis, not stacked extrudes.
 
 ## Ceiling
 
@@ -194,6 +199,7 @@ EXPECT: bbox 100 × 60 × 6 · 5 holes (4 mount + 1 bore) · 4 features
 Rules:
 - Every feature fills the four slots; every value has units or comes from PARAMETERS.
 - Planes by role (front / top / right), never by localized name.
+- Sketch coordinates are in the sketch plane's own (x, y). State the mapping to model axes once per plane used (e.g. "top plane: sketch x = model X, sketch y = model −Z"); never mix sketch and model coordinates in one step.
 - Name each feature; refer to faces and edges by feature + description, never by index.
 - Write computed positions out (bolt-circle coordinates, pattern offsets); keep the relation beside them so intent survives.
 - EXPECT lists what the executor can check: bounding box, feature and hole counts, key dimensions.
