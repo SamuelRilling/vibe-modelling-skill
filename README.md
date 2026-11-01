@@ -21,9 +21,20 @@ CAD programs build exactly what they are given. Natural-language requests leave 
 
 ## Install
 
-Copy `skills/vibe-modelling-skill/` into your Claude skills folder (for Claude Code: `~/.claude/skills/`). It triggers when you describe a part to model.
+**Claude Code** (as a plugin):
 
-It works on its own (it outputs the build spec). With a CAD tool connected, such as a SolidWorks MCP server, the spec is handed over for building.
+```
+/plugin marketplace add SamuelRilling/vibe-modelling-skill
+/plugin install vibe-modelling-skill@vibe-modelling
+```
+
+**Any agent that reads Agent Skills** (Claude, Codex, Gemini CLI, Copilot and others): copy `skills/vibe-modelling-skill/` into that agent's skills folder, e.g. `~/.claude/skills/` or a project's `.agents/skills/`.
+
+It triggers when you describe a part to model. On its own it outputs the build spec; with a CAD tool connected, the spec is handed over for building. The optional scripts need Python 3.10+ and nothing else; without them the skill does the same math itself.
+
+## Works with
+
+The build spec is plain text and CAD-agnostic, so any builder can consume it. Tested with [sw_mcp](https://github.com/tylerstoltz/sw_mcp) on SolidWorks 2020. Writing a builder? See [docs/build-spec.md](docs/build-spec.md#for-builder-authors).
 
 ## How it decides
 
@@ -31,10 +42,13 @@ It works on its own (it outputs the build spec). With a CAD tool connected, such
 - **Least information wins**: a standard name ("M5", "608") beats a relation ("centered", "8 mm from the edge"), which beats a raw number.
 - **Questions are aimed by leverage**: interfaces first (one answer fixes many dimensions), finishing details last.
 - **The handoff is a structured feature list**, not prose or code. Prose is ambiguous; code ties the spec to one CAD program.
+- **Math is deterministic where it can be.** `scripts/geometry.py` checks bolt circles, edge distances and walls and computes bbox and volume for EXPECT; `scripts/lint_spec.py` checks a spec against the format. Both are matched against SolidWorks measurements in the tests.
 
 ## Docs
 
 - [SKILL.md](skills/vibe-modelling-skill/SKILL.md): the skill itself.
+- [docs/build-spec.md](docs/build-spec.md): the build spec format, for anyone writing a builder.
+- [examples/](examples/): complete specs and a delta spec.
 - [docs/conventions.md](docs/conventions.md): the orientation, origin and iteration rules, and why.
 - [docs/prompt-research.md](docs/prompt-research.md): research on what makes a good CAD prompt and handoff format.
 - [docs/test-run-1.md](docs/test-run-1.md): gate tests on 5 prompts and two parts built in SolidWorks.
@@ -42,3 +56,5 @@ It works on its own (it outputs the build spec). With a CAD tool connected, such
 ## Status
 
 v0.3, early. Tested on prismatic and turned parts in SolidWorks 2020. Assemblies, drawings and freeform shapes are out of scope.
+
+Run the tests with `python -m unittest discover -s tests`. MIT licensed.
