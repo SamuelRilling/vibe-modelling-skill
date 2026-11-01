@@ -24,7 +24,7 @@ A part is a base body plus an ordered list of features. It is fully defined when
 
 **Aim proposals by leverage × cost of being wrong**, in this order:
 1. Interfaces and function: one answer fixes many dimensions; wrong means it doesn't fit.
-2. Envelope and process.
+2. Origin, when the part mates with another or will be iterated (see Conventions); envelope and process.
 3. Sizes and positions of features that touch an interface.
 4. Free features.
 5. Finishing (fillets, chamfers, text): default silently, report only in strict.
@@ -56,7 +56,7 @@ In every mode, the user's "send" is final: build exactly the spec shown, proposa
 5. **Spot what's missing.** Think about what the part does and what it touches: fasteners, mating parts, clearances, how it's held, how it's made. Propose what the user likely forgot.
 6. **Offer alternatives** only when the request has genuinely different readings (max 3, one line each, with tradeoff). Pick one as the default so the user can just send.
 7. **Output** using the format below. End with **"Send now or change anything?"**
-8. **On change:** update the values, show only the changed rows plus any new conflicts, end with the same line.
+8. **On change:** update the values, show only the changed rows plus any new conflicts, end with the same line. After a build, changes produce a delta spec (see Conventions).
 9. **On send:** write the build spec (see Build spec). If a CAD tool is connected, hand it over; otherwise output it.
 
 ## Checklist
@@ -67,8 +67,9 @@ Mode codes: **D** = draft and up, **N** = normal and up, **S** = strict only.
 - Units (D, default mm)
 - Overall envelope (D)
 - Function: what it does, what it mates with (N)
-- Material and process (N, default aluminum 6061, machined)
-- Datum and symmetry: where the origin sits, which planes are symmetric (N, default centered on origin, symmetric where the shape allows)
+- Material and process (D, default aluminum 6061, machined)
+- Orientation: which side is up and front (N, see Conventions)
+- Origin and symmetry (D if the part mates or will be iterated, else N; see Conventions)
 - Each feature: type, size, depth or through (N); position from a datum (S)
 - Edge treatment: fillets, chamfers, edge breaks (S, default none)
 - Tolerances and fits (S, default ISO 2768-m; named fits for bores and shafts)
@@ -143,8 +144,39 @@ Make the spec buildable the way a good CAD user would build it:
 - Dimension from datums the part actually uses (a mating face, a bore axis), not arbitrary corners.
 - Use symmetry when the shape has it; it halves the dimensions the user needs to give.
 - Say which dimensions drive the others ("hole pattern is centered on the bore").
-- Feature order: base body → main cuts and bosses → patterns → fillets and chamfers last.
 - Turned parts (shafts, bushings, pins, spacers): one revolve of the half-profile about the axis, not stacked extrudes.
+
+## Conventions
+
+Fixed rules so every part comes out oriented, located and structured the same way. Parts then fit together, and later changes are edits instead of rebuilds.
+
+**Orientation**
+- "Up" is defined by role, not by axis: the base sketch goes on the **top plane** and extrudes **along its normal** (+Y in SolidWorks, +Z in Onshape / Fusion).
+- Up is the part's **working orientation**: as installed; as printed for printed parts with no installed orientation. If they differ, model as installed and state the print orientation separately.
+- **Front** faces the user or the working side (connectors, the open side of a bracket, the face you bolt from).
+- Turned parts: axis vertical along the top-plane normal, flange or head at the bottom.
+
+**Origin**
+- Choose by priority: (1) the mating interface: bore axis, mounting face, bolt-pattern center; (2) the symmetry center; (3) the center of the bottom face.
+- Put it on the face that **stays put when the part is iterated** (the mounting face, not mid-thickness), so changing a thickness or length grows the part away from the interface.
+- If one choice is obvious, pick it and report it as an assumption. If two are plausible, or the part mates with another, make it a top proposal: "Origin on the motor-bore axis at the mounting face, so it lines up with the motor in an assembly. OK?"
+
+**Interfaces between parts**
+- Mating parts share the convention: each part's origin sits on the shared interface, shared axes point the same way. Origin-to-origin in an assembly then places them with no offsets.
+- When a part mates with one already specified, reuse its interface parameters (bolt pattern, bore, pilot) by name, not by retyping numbers.
+
+**Iteration-safe structure**
+- Every value that may change goes in PARAMETERS; derived values are relations (`hx = L/2 − inset`), so one change propagates.
+- Feature order: base body → main cuts and bosses → holes → patterns → fillets and chamfers last.
+- Name every feature by role ("Mount holes", "Bore"), so later changes point at names.
+- Never use a fillet or chamfer face, or a generated edge, as a sketch plane or dimension reference.
+
+**Change tracking**
+- Number specs: `v1`, `v2`… After a build, a change produces a **delta spec**: parameters changed (old → new), features affected, and for each one **edit** (change a value) or **rebuild** (topology changed). Update EXPECT with it.
+
+**Housekeeping**
+- Units mm. Material assigned in every spec (drives mass and process checks).
+- File name: `<project>-<part>-v<n>`.
 
 ## Ceiling
 
@@ -183,23 +215,32 @@ Keep it short. Draft mode: skip the table if fewer than 5 fields, list values in
 The handoff is a structured feature list, not prose, code or bare coordinates: prose is ambiguous, code ties it to one tool, coordinates alone lose intent. Format:
 
 ```
-PART: Motor plate · aluminum 6061, machined · units mm
-DATUM: origin at center of bottom face; symmetric about front and right planes
-PARAMETERS: L=100  W=60  T=6  hole_d=5.5  inset=8
+PART: motor-plate v1 · aluminum 6061, machined · units mm · file robot-motor-plate-v1
+ORIENTATION: up = installed up (mounting face down); front = connector side
+DATUM: origin on bore axis at bottom (mounting) face; symmetric about front and right planes
+PARAMETERS: L=100  W=60  T=6  hole_d=5.5 (M5)  inset=8  hx=L/2−inset  hy=W/2−inset
 
 1. Base: extrude · sketch on top plane: rectangle L × W centered on origin · blind T, upward
-2. Mount holes: hole Ø hole_d through all · on top face of Base · 4×, centers at (±42, ±22)
-   (= inset from each edge)
+2. Mount holes: hole Ø hole_d through all · on top face of Base · 4×, centers at (±hx, ±hy) = (±42, ±22)
 3. Bore: cut Ø22 H7 through all · on top face of Base · concentric with origin
 4. Edges: fillet R3 · 4 vertical edges of Base
 
 EXPECT: bbox 100 × 60 × 6 · 5 holes (4 mount + 1 bore) · 4 features
 ```
 
+Delta spec (after a change):
+
+```
+DELTA: motor-plate v1 → v2
+CHANGED: T 6 → 8
+AFFECTED: 1. Base (edit: depth)
+EXPECT: bbox 100 × 60 × 8 · 5 holes · 4 features
+```
+
 Rules:
 - Every feature fills the four slots; every value has units or comes from PARAMETERS.
 - Planes by role (front / top / right), never by localized name.
 - Sketch coordinates are in the sketch plane's own (x, y). State the mapping to model axes once per plane used (e.g. "top plane: sketch x = model X, sketch y = model −Z"); never mix sketch and model coordinates in one step.
-- Name each feature; refer to faces and edges by feature + description, never by index.
+- Follow Conventions: ORIENTATION and DATUM lines always present; name each feature; refer to faces and edges by feature + description, never by index.
 - Write computed positions out (bolt-circle coordinates, pattern offsets); keep the relation beside them so intent survives.
 - EXPECT lists what the executor can check: bounding box, feature and hole counts, key dimensions.
