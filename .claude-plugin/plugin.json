@@ -1,0 +1,12 @@
+{
+  "name": "vibe-modelling-skill",
+  "version": "0.3.0",
+  "description": "Turns natural-language part requests into complete, buildable CAD build specs: proposes missing values, checks the geometry, reports assumptions, and hands off a structured feature list any CAD agent can build.",
+  "author": {
+    "name": "Samuel Rilling"
+  },
+  "homepage": "https://github.com/SamuelRilling/vibe-modelling-skill",
+  "repository": "https://github.com/SamuelRilling/vibe-modelling-skill",
+  "license": "MIT",
+  "keywords": ["cad", "solidworks", "onshape", "fusion", "parametric", "3d-modeling", "prompt"]
+}

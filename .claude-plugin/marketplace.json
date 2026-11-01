@@ -1,0 +1,14 @@
+{
+  "name": "vibe-modelling",
+  "description": "Prompt validation and build specs for CAD modeling with agents",
+  "owner": {
+    "name": "Samuel Rilling"
+  },
+  "plugins": [
+    {
+      "name": "vibe-modelling-skill",
+      "source": "./",
+      "description": "Turns natural-language part requests into complete, buildable CAD build specs"
+    }
+  ]
+}
