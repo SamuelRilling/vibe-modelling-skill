@@ -19,4 +19,21 @@ Date: 2026-11-01. Method: 5 fresh Sonnet agents, each given only `SKILL.md` and 
 4. Off-the-shelf components recalled from memory: status "Resolved (from memory, check datasheet)", and include connector overhangs / keep-outs (test 2).
 5. Add a feature-vs-feature interference check (bore breaking pocket walls, holes cutting into pockets) (test 3).
 
-Still untested: building the specs in SolidWorks.
+## Build in SolidWorks (2026-11-01)
+
+Specs from tests 4 and 5 built in SolidWorks 2020 through `sw_mcp`, verified with a COM script (bbox, volume, features, cylinder radii).
+
+| Part | EXPECT | Measured | Hand-calc volume | Measured volume |
+|---|---|---|---|---|
+| Bushing (test 4) | bbox 24 × 20 × 24 · bore Ø8 · 4 features | 24 × 20 × 24 · R4 / R6 / R12 · 4 features | ≈ 2590 mm³ | 2590.6 mm³ |
+| Motor plate (test 5) | bbox 100 × 60 × 6 · 4 × Ø5.5 + Ø16 through · Ø22 seat · 5 features | 100 × 60 × 6 · R2.75 ×4, R8, R11, R3 ×4 · 5 features | 33 460.8 mm³ | 33 460.8 mm³ |
+
+Both specs were buildable as written; no value had to be guessed. Deviations: bushing built as extrudes (spec predates the revolve fix); plate bore cut before the seat (same geometry).
+
+**Executor friction (all `sw_mcp`, not the spec):**
+- `CreateSketch` only accepts localized plane names ("Planta", not "Top").
+- Cut extrudes from a plane need `reverseDirection: true`.
+- `ExecuteSolidWorksApi` fails on late-bound interfaces (`IPartDoc`, `ISelectionMgr`) and on `ref`/`out` parameters; parameter names must match the interop exactly.
+- No tool returns bbox / volume, so EXPECT needs an external script.
+- Coordinate edge selection (`SelectByID2`) is unreliable for hidden edges; corner edges had to be selected by geometry from a script.
+- `GetModelInfo` truncates the feature list.
