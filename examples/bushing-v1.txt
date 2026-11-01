@@ -1,0 +1,9 @@
+PART: flanged-bushing v1 · brass CW614N, turned · units mm · file robot-flanged-bushing-v1
+ORIENTATION: up = axis, flange at the bottom; front = any (axisymmetric)
+DATUM: origin on bore axis at flange back (mounting) face; axisymmetric about the top-plane normal
+PARAMETERS: bore_d=8 (H7)  body_d=12  flange_d=24  flange_t=4  total_L=20  ch=0.5
+
+1. Body: revolve 360° · sketch on front plane: closed half-profile right of the axis, sketch x = radius, sketch y = height (front plane: sketch x = model X, sketch y = up) · points (r, y): (bore_d/2, 0) (flange_d/2, 0) (flange_d/2, flange_t) (body_d/2, flange_t) (body_d/2, total_L) (bore_d/2, total_L) = (4,0) (12,0) (12,4) (6,4) (6,20) (4,20) · about the vertical axis through the origin
+2. Chamfers: chamfer ch × 45° · 3 outer circular edges of Body: flange back edge (Ø flange_d at y=0), flange front edge (Ø flange_d at y=flange_t), body end edge (Ø body_d at y=total_L)
+
+EXPECT: bbox 24 × 20 × 24 · 1 through hole Ø8 · 2 features · volume 2590.6 mm³

@@ -1,0 +1,12 @@
+PART: motor-plate v1 · aluminum 6061, machined · units mm · file robot-motor-plate-v1
+ORIENTATION: up = installed up (mounting face down); front = connector side
+DATUM: origin on bore axis at bottom (mounting) face; symmetric about front and right planes
+PARAMETERS: L=100  W=60  T=6  hole_d=5.5 (M5)  inset=8  hx=L/2−inset  hy=W/2−inset  bore_d=16  seat_d=22  seat_depth=4  r=3
+
+1. Base: extrude · sketch on top plane: rectangle L × W centered on origin · blind T, upward
+2. Mount holes: hole Ø hole_d through all · on top face of Base · 4×, centers at (±hx, ±hy) = (±42, ±22)
+3. Bore: cut Ø bore_d through all · on top face of Base · concentric with origin
+4. Bearing seat: cut Ø seat_d H7 · on top face of Base · concentric with origin · blind seat_depth, downward
+5. Corners: fillet R r · 4 vertical edges of Base
+
+EXPECT: bbox 100 × 60 × 6 · 5 through holes (4 × Ø5.5, 1 × Ø16) · seat Ø22 × 4 · 5 features · volume 33460.8 mm³

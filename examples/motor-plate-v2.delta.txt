@@ -1,0 +1,4 @@
+DELTA: motor-plate v1 → v2
+CHANGED: T 6 → 8
+AFFECTED: 1. Base (edit: depth) · 2. Mount holes, 3. Bore (none: through all follows T) · 4. Bearing seat (none: depth measured from top face)
+EXPECT: bbox 100 × 60 × 8 · 5 through holes · seat Ø22 × 4 · 5 features
