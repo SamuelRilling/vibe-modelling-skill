@@ -15,8 +15,6 @@ CAD programs build exactly what they are given. Natural-language requests leave 
 
 ## Install
 
-A **skill** is a folder with a `SKILL.md` file: instructions the agent loads when your request matches, here when you describe a part to model. Nothing runs in the background, and there's nothing to configure. The optional scripts need Python 3.10+; without Python the skill does the same math itself.
-
 ### As a skill (any agent)
 
 Copy the folder `skills/vibe-modelling-skill/` from this repo into your agent's skills folder:
@@ -49,7 +47,7 @@ Use the plugin in Claude Code, the folder everywhere else. Don't do both, or the
 
 ### With or without a CAD connection
 
-The skill doesn't build anything itself. It turns your request into a **build spec**, a plain-text feature list, and whatever is connected to your agent does the building.
+**The skill doesn't build anything itself**. It turns your request into a **build spec**, a plain-text feature list, and whatever is connected to your agent does the building.
 
 - **Skill only, no CAD connection:** you get the spec in the chat after you send. Build it by hand from the list, or paste it into an agent that is connected to CAD.
 - **With a CAD MCP server** (a connector that lets the agent drive a CAD program): after you send, the agent builds the spec using that server's tools, then compares the result with the spec's EXPECT line (size, hole count, volume) if the server can measure it.
